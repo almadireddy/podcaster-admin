@@ -1,0 +1,151 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}
+
+a {
+  font-weight: 700;
+  text-decoration: none;
+  transition: all .2s ease;
+  color: #e8eaf6;
+  background: transparent;
+  border-bottom: 1px solid #e8eaf6;
+  padding: 2px ;
+}
+
+a:hover {
+  /* color: #1b1f23; */
+  background-color: #2F363D;
+}
+
+.App {
+  background-color: #1b1f23;
+  min-height: 100vh;
+  background-color: #1b1f23;
+  color: #e8eaf6;
+  display: flex;
+  flex-direction: row;
+}
+
+.App .nav {
+  width: 250px;
+  height: 100vh;
+  position: fixed;
+}
+
+@media (min-width: 768px) {
+  .App .nav {
+    position: fixed;
+  }
+  .content-container {
+    padding-left: 300px;
+    padding-top: 50px;
+  }
+}
+
+.App .content-container {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 55px;
+}
+
+.layout {
+  margin-top: 50px;
+}
+
+.layout-content {
+  max-width: 1000px;
+  margin-bottom: 100px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 25px;;
+  align-items: flex-start;
+  max-width: 400px;
+}
+
+.formGroup input, .formGroup textarea {
+  width: 100%;
+  border: 0;
+  border-bottom: 2px solid #e8eaf6;
+  outline: 0;
+  background: #2F363D;
+  color: #e8eaf6;
+  padding: 5px;
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+.formGroup textarea {
+  resize: vertical;
+  width: 400px;
+  min-height: 200px;
+}
+
+.listing-item {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 15px 0;
+  background: #e8eaf6;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  color: #1b1f23;
+}
+
+.react-select-container {
+  width: 500px;
+}
+.react-select__menu, .react-select__multi-value__remove, .react-select__multi-value__label {
+  color: #1b1f23
+}
+
+.loader,
+.loader:after {
+  border-radius: 50%;
+  width: 75px;
+  height: 75px;
+}
+.loader {
+  margin: 15px 15px;
+  font-size: 10px;
+  position: relative;
+  text-indent: -9999em;
+  border-top: 7px solid #2F363D;
+  border-right: 7px solid #2F363D;
+  border-bottom: 7px solid #2F363D;
+  border-left: 7px solid #e8eaf6;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-animation: load8 1.1s infinite linear;
+  animation: load8 1.1s infinite linear;
+}
+@-webkit-keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
