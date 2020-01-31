@@ -12,9 +12,16 @@ const config = {
 
 export default class Firebase {
   constructor() {
+    if (!!Firebase.instance) {
+      return Firebase.instance;
+    }
+
+    Firebase.instance = this;
+
     app.initializeApp(config)
     this.auth = app.auth()
     this.idToken = null;
+    return this;
   }
 
   isSignedIn = () => {
@@ -22,7 +29,11 @@ export default class Firebase {
   }
 
   getIdToken = async () => {
-    return await this.auth.currentUser.getIdToken()
+    if (this.auth.currentUser === null) {
+      return ""
+    }
+    return await this.auth.currentUser.getIdToken();
+    
   }
 
   doCreateUserWithEmailAndPassword = (email, password) => {

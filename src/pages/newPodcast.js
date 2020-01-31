@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import FormGroup from '../components/formGroup'
 import OutlineButton from '../components/outlineButton';
 import envConfig from '../envConfig';
+import { withFirebase } from '../components/firebase';
 
 const LeadPara = styled.p`
   margin-bottom: 50px;
@@ -40,7 +41,7 @@ const SubmitButton = styled.button`
   }
 `
 
-export default class NewPodcast extends React.Component {
+class NewPodcast extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -72,11 +73,15 @@ export default class NewPodcast extends React.Component {
               podcast_art: values.podcastArt,
               language: values.language,
             }
+
+            let id = await this.props.firebase.getIdToken();
+
             let x = await fetch(`${envConfig.API_HOST}/api/podcasts`, {
               method: "POST",
               body: JSON.stringify(postBody),
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                authorization: id
               }
             })
             if (x.status === 200) {
@@ -154,3 +159,5 @@ export default class NewPodcast extends React.Component {
 // language
 // description
 // podcast art
+
+export default withFirebase(NewPodcast);

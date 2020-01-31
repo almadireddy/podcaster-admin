@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import ReactPlayer from 'react-player';
 import envConfig from "../envConfig";
 import Spinner from '../components/spinner';
+import { withFirebase } from '../components/firebase';
 
 const ArtPlaceholder = styled.div`
   width: 400px;
@@ -54,12 +55,21 @@ const ChangeImageForm = (props) => (
       if (values.file == null) {
         return
       }
+      
+      const token = await props.firebase.getIdToken();
+      const authHeader = {
+        "authorization": token
+      }
+      
       let formData = new FormData();
       formData.append('image', values.file)
+      
       let x = await fetch(`${envConfig.API_HOST}/api/podcast/${props.id}/art`, {
         body: formData,
-        method: "post"
+        method: "post",
+        headers: {...authHeader}
       })
+
       if (x.status === 200) {
         let j = await x.json();
         resetForm();
@@ -120,19 +130,14 @@ const Section = styled.div`
   }
 `
 
-const PodcastArtContainer = styled.div`
-  width: 400px;
-  margin: 0 auto;
-  margin-bottom: 10px;
-`
-
-export default class Episode extends React.Component {
+class Episode extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       episodeData: null,
       newName: null,
-      newDescription: null
+      newDescription: null,
+      token: null
     }
 
     this.successfulSubmitHandler = this.successfulSubmitHandler.bind(this)
@@ -143,11 +148,15 @@ export default class Episode extends React.Component {
 
   async componentWillMount() {
     const {params} = this.props.match;
+    
+    const token = await this.props.firebase.getIdToken();
+    
     const r = await fetch(`${envConfig.API_HOST}/api/episode/${params.episodeId}`)
     const j = await r.json();
     
     this.setState({
-      episodeData: j
+      episodeData: j,
+      token: token
     })
   }
 
@@ -181,9 +190,11 @@ export default class Episode extends React.Component {
       method: "PATCH",
       body: JSON.stringify(episodeData),
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        authorization: this.state.token
       }
     });
+
     if (x.status === 200) {
       toast("Saved changes to podcast!");
     }
@@ -191,12 +202,17 @@ export default class Episode extends React.Component {
 
   render() {
     const {episodeData} = this.state;
+
     return (
       <Layout title={episodeData ? episodeData.title : ""}>
         <div className='podcast-single'>
           {episodeData ? (
             <EpisodeData>
               <Section>
+                {episodeData.podcast !== undefined && 
+                    <h2 className="subheader">From {episodeData.podcast.name}</h2>
+                }
+                <h2>Description: </h2>
                 <h3>{episodeData.description}</h3>
                 <FormGroup
                   label="Change Podcast Name"
@@ -232,16 +248,6 @@ export default class Episode extends React.Component {
                   </ItemContainer>
                 </Section>
               }
-
-              {episodeData.podcast !== undefined && 
-                <Section>
-                  <h2 className="subheader">From {episodeData.podcast.name}</h2>
-                  <ItemContainer>
-                    
-                  </ItemContainer>
-                </Section>
-              }
-               
               <Section>
                 <OutlineButton onClick={this.submitChangesHandler}>Save All Changes</OutlineButton>
               </Section>
@@ -252,3 +258,5 @@ export default class Episode extends React.Component {
     )
   }
 }
+
+export default withFirebase(Episode);

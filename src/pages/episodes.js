@@ -6,8 +6,9 @@ import envConfig from "../envConfig";
 import IndexPreview from "../components/indexPreview";
 import IndexPreviewContainer from "../components/indexPreviewContainer";
 import Spinner from '../components/spinner';
+import { withFirebase } from '../components/firebase';
 
-export default class Episodes extends React.Component {
+class Episodes extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -16,7 +17,14 @@ export default class Episodes extends React.Component {
   }
 
   async componentWillMount() {
-    let x = await fetch(`${envConfig.API_HOST}/api/episodes`)
+    const token = await this.props.firebase.getIdToken();
+    const authHeader = {
+      "authorization": token
+    }
+
+    let x = await fetch(`${envConfig.API_HOST}/api/episodes`, {
+      headers: {...authHeader}
+    })
     let j = await x.json();
 
     this.setState({
@@ -47,3 +55,5 @@ export default class Episodes extends React.Component {
     )  
   }
 }
+
+export default withFirebase(Episodes);

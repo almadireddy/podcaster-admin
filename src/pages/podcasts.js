@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import Layout from '../components/layout';
 import styled from 'styled-components';
 import NewButton from '../components/newButton';
@@ -7,23 +7,46 @@ import envConfig from "../envConfig";
 import IndexPreview from "../components/indexPreview";
 import IndexPreviewContainer from "../components/indexPreviewContainer";
 import Spinner from '../components/spinner';
+import { withFirebase } from '../components/firebase';
 
-export default class Podcasts extends React.Component {
+class Podcasts extends React.Component {
   constructor(props) {
     super(props) 
     this.state = {
-      podcasts: null
+      podcasts: null,
+      redirect: false
     }
   }
   
   async componentWillMount() {
-    const r = await fetch(`${envConfig.API_HOST}/api/podcasts`, {})
-    const j = await r.json();
-    
-    this.setState({podcasts: j}) 
+    if (this.props.firebase.isSignedIn()) {
+      let id = await this.props.firebase.getIdToken();
+      const r = await fetch(`${envConfig.API_HOST}/api/podcasts`, {
+        headers: {
+          authorization: id
+        }
+      })
+      const j = await r.json();
+      
+      this.setState({podcasts: j}) 
+    } else {
+      this.setState({redirect: true})
+    }
   }
   
   render() {
+    if (this.state.redirect) {
+      console.log(this.props.location)
+      return(
+        <Redirect to={{
+          pathname: "/signin",
+          state: {
+            referrer: this.props.location.pathname
+          }
+        }}></Redirect>
+      )
+    }
+
     return(
       <Layout title="All Podcasts">
         <IndexPreviewContainer>
@@ -50,3 +73,5 @@ export default class Podcasts extends React.Component {
     )
   }
 }
+
+export default withFirebase(Podcasts);

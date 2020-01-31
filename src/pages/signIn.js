@@ -4,6 +4,7 @@ import { Formik } from 'formik';
 import FormGroup from '../components/formGroup';
 import OutlineButton from '../components/outlineButton';
 import styled from 'styled-components'
+import { Redirect } from "react-router-dom";
 
 const AccountFormContainer = styled.div`
   width: 400px;
@@ -115,8 +116,16 @@ export default function SignIn(props) {
   const [forgotState, setForgotState] = useState(false)
 
   if (firebase.isSignedIn()) {
-    props.history.push("/")
-    return null
+    let {state} = props.location;
+    if (state) {
+      return (
+        <Redirect to={state.referrer}></Redirect>
+      )
+    } else {
+      return (
+        <Redirect to="/"></Redirect>
+      )
+    }
   }
 
   return (

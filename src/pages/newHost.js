@@ -8,6 +8,7 @@ import OutlineButton from '../components/outlineButton';
 import envConfig from '../envConfig';
 import { toast } from 'react-toastify';
 import Select from 'react-select'
+import { withFirebase } from '../components/firebase';
 
 const LeadPara = styled.p`
   margin-bottom: 50px;
@@ -42,7 +43,7 @@ const SubmitButton = styled.button`
   }
 `
 
-export default class NewHost extends React.Component {
+class NewHost extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -56,7 +57,15 @@ export default class NewHost extends React.Component {
   }
 
   async componentWillMount() {
-    let x = await fetch(`${envConfig.API_HOST}/api/podcasts`)
+    const token = await this.props.firebase.getIdToken();
+    const authHeader = {
+      "authorization": token
+    }
+
+
+    let x = await fetch(`${envConfig.API_HOST}/api/podcasts`, {
+      headers: {...authHeader}
+    })
     let k = await x.json();
 
     this.setState({
@@ -111,11 +120,17 @@ export default class NewHost extends React.Component {
               postBody["channel_id"] = this.state.selectedPodcasts
             }
 
+            const token = await this.props.firebase.getIdToken();
+            const authHeader = {
+              "authorization": token
+            }
+
             let x = await fetch(`${envConfig.API_HOST}/api/hosts`, {
               method: "POST",
               body: JSON.stringify(postBody),
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                ...authHeader
               }
             })
             if (x.status === 200) {
@@ -212,3 +227,5 @@ export default class NewHost extends React.Component {
 // language
 // description
 // podcast art
+
+export default withFirebase(NewHost);

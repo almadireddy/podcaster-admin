@@ -127,7 +127,8 @@ class Podcast extends React.Component {
       allHosts: null,
       allGuests: null,
       selectedHosts: null,
-      selectedEpisodes: null
+      selectedEpisodes: null,
+      token: null
     }
 
     this.successfulSubmitHandler = this.successfulSubmitHandler.bind(this)
@@ -141,15 +142,25 @@ class Podcast extends React.Component {
 
   async componentWillMount() {
     const {params} = this.props.match;
-
-    const r = await fetch(`${envConfig.API_HOST}/api/podcast/${params.podcastId}`)
+    const token = await this.props.firebase.getIdToken();
+    const authHeader = {
+      "authorization": token
+    }
+    
+    const r = await fetch(`${envConfig.API_HOST}/api/podcast/${params.podcastId}`, {
+      headers: {...authHeader}
+    })
     const j = await r.json();
     
-    const e = await fetch(`${envConfig.API_HOST}/api/episodes`)
+    const e = await fetch(`${envConfig.API_HOST}/api/episodes`, {
+      headers: {...authHeader}
+    })
     let y = await e.json()
 
     let allHosts = null
-    const h = await fetch(`${envConfig.API_HOST}/api/hosts`)
+    const h = await fetch(`${envConfig.API_HOST}/api/hosts`, {
+      headers: {...authHeader}
+    })
     if (h.status === 200) {
       let hj = await h.json()
   
@@ -158,7 +169,9 @@ class Podcast extends React.Component {
 
     let allGuests = null;
 
-    const g = await fetch(`${envConfig.API_HOST}/api/guests`)
+    const g = await fetch(`${envConfig.API_HOST}/api/guests`, {
+      headers: {...authHeader}
+    })
     if (g.status === 200) {
       let gj = await g.json()
   
@@ -172,7 +185,8 @@ class Podcast extends React.Component {
       allGuests: allGuests,
       selectedHosts: j.hosts,
       selectedGuests: j.guests,
-      selectedEpisodes: j.episodes
+      selectedEpisodes: j.episodes,
+      token: token
     })
   }
 
@@ -211,8 +225,12 @@ class Podcast extends React.Component {
     formData.append('image', values.file)
     let x = await fetch(`${envConfig.API_HOST}/api/podcast/${this.state.podcastData.id}/art`, {
       body: formData,
-      method: "post"
+      method: "post",
+      headers: {
+        authorization: this.state.token
+      }
     })
+
     if (x.status === 200) {
       let j = await x.json();
       resetForm();
@@ -226,7 +244,8 @@ class Podcast extends React.Component {
       method: "PATCH",
       body: JSON.stringify(podcastData),
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        authorization: this.state.token
       }
     });
     if (x.status === 200) {

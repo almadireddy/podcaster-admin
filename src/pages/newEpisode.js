@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import FormGroup from '../components/formGroup'
 import OutlineButton from '../components/outlineButton';
 import envConfig from '../envConfig';
+import { withFirebase } from '../components/firebase';
 
 const LeadPara = styled.p`
   margin-bottom: 50px;
@@ -40,7 +41,7 @@ const SubmitButton = styled.button`
   }
 `
 
-export default class NewEpisode extends React.Component {
+class NewEpisode extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -56,7 +57,7 @@ export default class NewEpisode extends React.Component {
           create your new episode!
         </LeadPara>
         <Formik
-          className="newPodcastForm"
+          className="newEpisodeForm"
           initialValues={{
             title: "My New Podcast",
             description: "My new podcast is amazing!",
@@ -72,11 +73,15 @@ export default class NewEpisode extends React.Component {
               language: values.language,
               podcast_id: values.podcastId
             }
+            
+            const token = await this.props.firebase.getIdToken();
+
             let x = await fetch(`${envConfig.API_HOST}/api/episodes`, {
               method: "POST",
               body: JSON.stringify(postBody),
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                authorization: token
               }
             })
             if (x.status === 200) {
@@ -149,8 +154,4 @@ export default class NewEpisode extends React.Component {
   }
 }
 
-// name
-// start year
-// language
-// description
-// podcast art
+export default withFirebase(NewEpisode);
